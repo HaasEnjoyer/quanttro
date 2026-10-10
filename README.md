@@ -1,5 +1,10 @@
 # quanttro
 
+[![PyPI](https://img.shields.io/pypi/v/quanttro)](https://pypi.org/project/quanttro/)
+[![Python](https://img.shields.io/pypi/pyversions/quanttro)](https://pypi.org/project/quanttro/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-277%20passing-brightgreen)](tests/)
+
 An open-source Python toolkit for quantitative research: data fetching,
 feature engineering, walk-forward backtesting, position sizing, portfolio
 optimization, backtest-robustness testing (CPCV/PBO), a broker-agnostic
