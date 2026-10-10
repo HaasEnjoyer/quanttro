@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+
+# Virtual environments
+venv/
+.venv/
+
+# Data (regeneratable via bist_quant.data.fetch_* / legacy fetch_data.py scripts)
+data/
+examples/output/
+
+# bist_quant's own disk cache (if ever created inside the repo)
+.bist_quant_cache/
+
+# Editor/OS
+.DS_Store
+.vscode/
+.idea/
+
+# Env/secrets
+.env
+*.env.local

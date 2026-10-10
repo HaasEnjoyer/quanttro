@@ -1,0 +1,347 @@
+<title>BIST Sinyal Taraması</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper:#f1f3ee; --paper-raised:#ffffff; --ink:#1b2420; --ink-soft:#4b564f;
+    --line:#d7dcd1; --accent:#a9672c; --accent-soft:#f0e0c9;
+    --well:#3c7a5a; --well-soft:#dcece1; --mixed:#ab7a1f; --mixed-soft:#f3e8cf;
+    --risk:#9c4238; --risk-soft:#f3dcd8; --shadow: 0 1px 2px rgba(27,36,32,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#141a17; --paper-raised:#1b2320; --ink:#e9ece6; --ink-soft:#aab3ac;
+      --line:#2b352f; --accent:#d99a56; --accent-soft:#3a2c1a;
+      --well:#6cbf93; --well-soft:#1d3327; --mixed:#d4ac52; --mixed-soft:#332a14;
+      --risk:#d98a7e; --risk-soft:#3a2320; --shadow: 0 1px 2px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#141a17; --paper-raised:#1b2320; --ink:#e9ece6; --ink-soft:#aab3ac;
+    --line:#2b352f; --accent:#d99a56; --accent-soft:#3a2c1a;
+    --well:#6cbf93; --well-soft:#1d3327; --mixed:#d4ac52; --mixed-soft:#332a14;
+    --risk:#d98a7e; --risk-soft:#3a2320; --shadow: 0 1px 2px rgba(0,0,0,.3);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:'Public Sans', system-ui, sans-serif;
+    font-size:16px; line-height:1.6;
+    padding:0 20px; margin:0;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding-block:48px 96px;}
+
+  h1,h2,h3{font-family:'Spectral', Georgia, serif; text-wrap:balance; line-height:1.2; margin:0;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 10px;
+  }
+  h1{font-size:clamp(28px,5vw,40px); font-weight:700;}
+  .subtitle{color:var(--ink-soft); font-size:17px; margin-top:14px; max-width:640px;}
+  .meta{
+    display:flex; gap:18px; flex-wrap:wrap; margin-top:22px;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-soft);
+  }
+  .meta b{color:var(--ink); font-weight:500;}
+
+  header.masthead{border-bottom:1px solid var(--line); padding-bottom:32px;}
+
+  /* legend */
+  .legend{
+    display:flex; gap:10px; flex-wrap:wrap; margin:28px 0 0;
+  }
+  .tag{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; font-weight:500;
+    letter-spacing:.02em; padding:4px 9px; border-radius:5px; white-space:nowrap;
+  }
+  .tag.well{background:var(--well-soft); color:var(--well);}
+  .tag.mixed{background:var(--mixed-soft); color:var(--mixed);}
+  .tag.risk{background:var(--risk-soft); color:var(--risk);}
+  .tag-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+  /* toc */
+  nav.toc{
+    margin:36px 0 0; padding:18px 20px; background:var(--paper-raised);
+    border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow);
+  }
+  nav.toc .toc-title{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px;
+  }
+  nav.toc ol{margin:0; padding:0; list-style:none; columns:2; gap:28px;}
+  nav.toc li{break-inside:avoid; margin-bottom:6px;}
+  nav.toc a{color:var(--ink); text-decoration:none; font-size:14.5px; border-bottom:1px solid transparent;}
+  nav.toc a:hover{border-bottom-color:var(--accent); color:var(--accent);}
+  nav.toc .sec-num{font-family:'IBM Plex Mono', monospace; color:var(--accent); margin-right:6px;}
+
+  /* summary strip */
+  .summary{
+    margin:40px 0; padding:24px; background:var(--paper-raised);
+    border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow);
+  }
+  .summary h2{font-size:19px; margin-bottom:14px;}
+  .summary ul{margin:0; padding-left:0; list-style:none; display:grid; gap:10px;}
+  .summary li{padding-left:20px; position:relative; font-size:15px;}
+  .summary li::before{content:"→"; position:absolute; left:0; color:var(--accent); font-weight:600;}
+
+  section.block{margin-top:64px;}
+  .sec-head{display:flex; align-items:baseline; gap:12px; margin-bottom:6px;}
+  .sec-num-big{font-family:'IBM Plex Mono', monospace; font-size:14px; color:var(--accent);}
+  .sec-head h2{font-size:26px;}
+  .sec-sub{color:var(--ink-soft); font-size:14.5px; margin:6px 0 28px; font-style:italic; font-family:'Spectral', serif;}
+
+  h3{font-size:18px; margin-top:34px; margin-bottom:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  h3 .n{color:var(--accent); font-family:'IBM Plex Mono', monospace; font-size:14px;}
+
+  p{margin:0 0 14px;}
+  .block p, .block li{max-width:68ch;}
+  a{color:var(--accent);}
+  strong{font-weight:600;}
+  code, .tick{
+    font-family:'IBM Plex Mono', monospace; font-size:.92em; background:var(--accent-soft);
+    color:var(--ink); padding:1.5px 5px; border-radius:4px;
+  }
+
+  ul.plain, ol.plain{padding-left:22px; margin:0 0 16px;}
+  ul.plain li, ol.plain li{margin-bottom:8px;}
+
+  .callout{
+    margin:18px 0; padding:14px 16px; border-radius:8px; border-left:3px solid var(--risk);
+    background:var(--risk-soft); font-size:14.5px;
+  }
+  .callout.well{border-left-color:var(--well); background:var(--well-soft);}
+  .callout b{display:block; font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px; color:var(--ink-soft);}
+
+  table{width:100%; border-collapse:collapse; margin:18px 0 24px; font-size:14px;}
+  .tbl-wrap{overflow-x:auto;}
+  th,td{text-align:left; padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); font-weight:500;}
+  tbody tr:last-child td{border-bottom:none;}
+  td.num{font-variant-numeric:tabular-nums; font-family:'IBM Plex Mono', monospace;}
+
+  footer{
+    margin-top:80px; padding-top:24px; border-top:1px solid var(--line);
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft);
+  }
+
+  @media (max-width:560px){
+    nav.toc ol{columns:1;}
+    .sec-head{flex-direction:column; gap:2px;}
+  }
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Araştırma Notu — BIST30 Tahmin Projesi</p>
+  <h1>Hangi yöntemler gerçekten işe yarıyor?</h1>
+  <p class="subtitle">Akademik literatür, pratisyen/Reddit topluluğu ve Borsa İstanbul'a özgü bulguların üç paralel taramadan derlenmiş, tek bir sentezi — saatlik/günlük fiyat tahmin modeli ve dashboard'u kurmadan önce okunacak rapor.</p>
+  <div class="meta">
+    <span><b>3</b> paralel araştırma akışı</span>
+    <span><b>49</b> kaynak taraması (web + akademik)</span>
+    <span>Kapsam: BIST30, yfinance OHLCV</span>
+  </div>
+  <div class="legend">
+    <span class="tag well"><span class="tag-dot"></span>Kanıtlanmış</span>
+    <span class="tag mixed"><span class="tag-dot"></span>Kısmen / zayıf kanıt</span>
+    <span class="tag risk"><span class="tag-dot"></span>Tuzak / dikkat</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <p class="toc-title">İçindekiler</p>
+  <ol>
+    <li><a href="#ozet"><span class="sec-num">00</span>Yönetici özeti</a></li>
+    <li><a href="#akademik"><span class="sec-num">A</span>Akademik literatür</a></li>
+    <li><a href="#pratisyen"><span class="sec-num">B</span>Pratisyen &amp; Reddit</a></li>
+    <li><a href="#bist"><span class="sec-num">C</span>BIST'e özgü bulgular</a></li>
+    <li><a href="#aksiyon"><span class="sec-num">D</span>Projeye çevirisi</a></li>
+  </ol>
+</nav>
+
+<div class="summary" id="ozet">
+  <h2>Yönetici özeti</h2>
+  <ul>
+    <li><strong>Model seçimi:</strong> Gradient boosting (LightGBM/XGBoost) akademik literatürde LSTM/Transformer'dan tutarlı şekilde daha güvenilir — derin öğrenme iddiaları çoğunlukla data leakage ile şişirilmiş.</li>
+    <li><strong>Beklenti yönetimi:</strong> Ciddi akademik çalışmalarda (Gu-Kelly-Xiu) gerçek out-of-sample R² %0.3–3 aralığında — "%80 doğruluk" vaatleri neredeyse hep metodoloji hatası işareti.</li>
+    <li><strong>En büyük risk kod değil, veri:</strong> yfinance'in BIST100'de 2020 redenominasyon kırılması ve temettü/bedelli ayarlama şüphesi var — model öncesi veri doğrulanmalı.</li>
+    <li><strong>Gerçek BIST çapası:</strong> Dönüm-ayı (turn-of-month) ve gün-içi hafta etkisi BIST'te akademik olarak belgelenmiş; momentum ise zayıf/tersine dönük.</li>
+    <li><strong>5 dakikalık veri en zor hedef:</strong> Mikroyapı gürültüsü (bid-ask bounce) kısa vadede sinyali boğuyor — yön tahmini için saatlik/günlük daha gerçekçi başlangıç noktası.</li>
+    <li><strong>Maliyet modeli olmadan backtest anlamsız:</strong> Teknik indikatör (RSI/MACD) kârları işlem maliyeti eklenince pratisyen ve akademik kaynaklarda tutarlı şekilde eriyor.</li>
+  </ul>
+</div>
+
+<!-- SECTION A -->
+<section class="block" id="akademik">
+  <div class="sec-head"><span class="sec-num-big">A</span><h2>Akademik literatür</h2></div>
+  <p class="sec-sub">Fiyat/getiri tahminine dair hakemli ve indekslenmiş çalışmaların taraması.</p>
+
+  <h3><span class="n">A1</span>Klasik istatistik — ARIMA / GARCH <span class="tag mixed">kısmen</span></h3>
+  <p>ARIMA kendi otokorelasyon yapısını ekstrapole eder; GARCH ise yön değil <em>volatilite kümelenmesini</em> modeller. Kanıtlar veri setine göre tutarsız: bazı çalışmalarda ARIMA-GARCH hibriti RMSE'yi düşürüyor, bazılarında düz ARIMA daha iyi — ikisi de 2008 gibi rejim kırılmalarında ciddi bozuluyor.</p>
+  <div class="callout well"><b>Proje için çıkarım</b>GARCH ailesini yön tahmini için değil, <strong>volatilite/risk özelliği üreteci</strong> ve pozisyon büyüklüğü belirleme girdisi olarak kullan.</div>
+
+  <h3><span class="n">A2</span>Momentum &amp; kısa-dönem tersine dönüş <span class="tag well">kanıtlanmış</span></h3>
+  <p>EMH getirilerin tahmin edilemez olmasını öngörür; literatür ise ufka göre değişen iki zıt etki gösterir: günler–1 ay ufkunda <strong>kısa-dönem tersine dönüş</strong> (çoğunlukla bid-ask sıçraması/likidite baskısından), 3–12 ay ufkunda ise Jegadeesh &amp; Titman'ın (1993) klasik <strong>momentum</strong> bulgusu — onlarca yıl ve piyasada tekrarlanmış. Novy-Marx (2012), tahmin gücünün en çok 7–12 ay öncesinde yoğunlaştığını, en son ayda değil, gösteriyor.</p>
+  <p style="color:var(--ink-soft); font-size:14px;">Etki büyüklüğü küçük ve keşiften sonra zayıflamış ("factor decay") — BIST günlük verisinde ABD büyük-şirket literatüründen daha küçük beklenmeli.</p>
+
+  <h3><span class="n">A3</span>Makine öğrenmesi — Gradient Boosting <span class="tag well">kanıtlanmış</span></h3>
+  <p>Çapa çalışma: Gu, Kelly &amp; Xiu (2020, <em>Review of Financial Studies</em>) — ~94 özellik ve geniş ABD kesitinde, ağaç toplulukları doğrusal modelleri belirgin şekilde geçiyor, ama <strong>aylık out-of-sample R² yalnızca ~%0.3–3</strong>. Bu, popüler ML-tahmin eğitimlerindeki "%60-90 doğruluk" iddialarının gerçekçi olmadığının referans noktası. Kazanç, egzotik yeni sinyallerden değil, momentum/likidite/volatilite gibi bilinen faktörlerin <strong>doğrusal olmayan etkileşiminden</strong> geliyor.</p>
+
+  <h3><span class="n">A4</span>LSTM / Transformer <span class="tag risk">yüksek şüphe</span></h3>
+  <div class="callout"><b>Dikkat</b>Popüler LSTM/Transformer "hisse tahmini" makaleleri sistematik sorunlarla malul: en iyi varyantın seçilip raporlanması, negatif sonuçların gizlenmesi, train/test ayrımından önce ölçekleme yapılarak sızdırılan veri (look-ahead), ve çoğunlukla <em>fiyat seviyesi</em> değil <em>getiri</em> tahmin edilmesi. Fiyat-seviyesi hedefte "yarın ≈ bugün" diyen naif bir rastgele-yürüyüş modeli bile düşük RMSE skorlar — gerçek beceri değil, klasik bir metrik tuzağı.</div>
+  <p><strong>Pratik öneri:</strong> Birincil model ailesi olarak LightGBM/XGBoost ile başla — daha ucuz, daha yorumlanabilir, kısıtlı BIST geçmişiyle aşırı öğrenmeye daha dirençli ve neredeyse her ciddi akademik karşılaştırmada derin öğrenmeyle eşit veya üstün.</p>
+
+  <h3><span class="n">A5</span>Özellik mühendisliği &amp; bilinen tuzaklar</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Özellik / konu</th><th>Durum</th><th>Not</th></tr></thead>
+    <tbody>
+      <tr><td>Gecikmeli getiriler (1g/5g/1ay/3-12ay)</td><td><span class="tag well">kanıtlanmış</span></td><td>Çekirdek özellik seti olmalı</td></tr>
+      <tr><td>Hacim / likidite (Amihud illiquidity)</td><td><span class="tag well">kanıtlanmış</span></td><td>Gu-Kelly-Xiu'da baskın sinyal grubu</td></tr>
+      <tr><td>Volatilite (realized vol, ATR)</td><td><span class="tag well">kanıtlanmış</span></td><td>Risk ayarlı boyutlandırma için güçlü, yön için zayıf</td></tr>
+      <tr><td>Sektör-relatif / endekse göre güç</td><td><span class="tag mixed">kısmen</span></td><td>Teorik temel var, EM-özel doğrulama az</td></tr>
+      <tr><td>RSI/MACD/MA kesişimi (<em>kural olarak</em>)</td><td><span class="tag risk">kanıtlanmamış</span></td><td>Maliyet eklenince kâr Çin/Hindistan çalışmalarında kayboluyor — ama ML girdisi olarak dahil edilebilir</td></tr>
+      <tr><td>Gün-içi hafta etkisi</td><td><span class="tag mixed">kısmen</span></td><td>BIST'te belgelenmiş, küçük büyüklük</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="n">A6</span>Kritik metodoloji tuzakları</h3>
+  <ul class="plain">
+    <li><strong>Look-ahead bias:</strong> Karar anında mevcut olmayan bilginin (örn. ortalanmış rolling pencere) kullanılması — backtest'i öldüren en yaygın hata.</li>
+    <li><strong>Survivorship bias:</strong> Listeden çıkan şirketleri hariç tutmak yıllık getiriyi %0.1–0.9 şişirebiliyor — tam da bu projenin ince kâr marjlarını tersine çevirebilecek büyüklükte.</li>
+    <li><strong>Overfitting / Deflated Sharpe:</strong> Bailey &amp; López de Prado — çok sayıda strateji/parametre denemesi, saf gürültüde bile Sharpe oranını şişirir. Walk-forward doğrulama ve deneme-sayısına göre düzeltilmiş Sharpe <em>zorunlu</em>, opsiyonel değil.</li>
+    <li><strong>Mikroyapı gürültüsü:</strong> Örnekleme sıklığı arttıkça bid-ask sıçraması fiyat değişiminin varyansına hakim olur — <strong>5 dakikalık veri günlükten kategorik olarak daha zor</strong>, sadece "daha fazla veri" değil.</li>
+  </ul>
+</section>
+
+<!-- SECTION B -->
+<section class="block" id="pratisyen">
+  <div class="sec-head"><span class="sec-num-big">B</span><h2>Pratisyen &amp; Reddit</h2></div>
+  <p class="sec-sub">r/algotrading, r/quant ve quant-pratisyen bloglarından derlenen topluluk konsensüsü.</p>
+
+  <h3><span class="n">B1</span>Mum/grafik formasyonları — eğitim içeriği vs. gerçek konsensüs <span class="tag risk">çatışma</span></h3>
+  <div class="callout"><b>Tutorial vs. pratisyen çatışması</b>Yeni başlayanlara yönelik içerik (kurslar, TradingView scriptleri) formasyonların "%50-70 işe yaradığını" iddia ediyor. Quant-pratisyen konsensüsü ise tam tersi: <strong>öznel olarak tanımlanan mum/grafik formasyonlarının maliyet-ayarlı, güvenilir bir avantajı yok</strong> — bir çalışma "hiçbir formasyon, hisse/endeks kesitinde istatistiksel ve ekonomik olarak anlamlı kâr üretmiyor" diyor. Kullanılacaksa mekanik olarak tanımlanmalı ve ampirik test edilmeli, göz kararı "doji gördüm" değil.</div>
+
+  <h3><span class="n">B2</span>Hacim sinyalleri <span class="tag mixed">popüler sezgi</span></h3>
+  <p>Pratisyenler hacmi tek başına tahmin aracı değil, <strong>doğrulama/bağlam aracı</strong> olarak görüyor: yüksek hacimli hareket güvenilir, ince hacimli aynı hareket şüpheli. Sık tekrarlanan iddia: fiyat hareketi olmadan hacim artışı, yakında sert bir yönlü hareketin öncüsü olabilir (OBV ayrışması) — ama bu daha çok eğitim-sitesi sezgisi, sıkı test edilmiş konsensüs değil. Test edilecek aday özellik olarak işaretle, doğrulanmış sinyal olarak değil.</p>
+
+  <h3><span class="n">B3</span>Momentum vs. tersine dönüş — zaman dilimine göre</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Ufuk</th><th>Dominant rejim</th><th>Not</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;10 dk bar</td><td>Karışık / dönüşümlü</td><td>Bar büyüklüğüne aşırı bağımlı, kararsız</td></tr>
+      <tr><td>Gün-içi (dk–saat)</td><td>Tersine dönüş</td><td>Yüksek isabet (%60-75), küçük hedef, düşen ATR'de iyi çalışır</td></tr>
+      <tr><td>Günlük–haftalık</td><td>Momentum</td><td>Düşük isabet (%35-45), büyük hedef, yükselen ATR gerekir</td></tr>
+    </tbody>
+  </table></div>
+  <p style="color:var(--ink-soft); font-size:14px;">Ufuktan daha önemlisi <strong>rejim</strong>: ADX/ATR percentile tipi filtrelerle hangi stratejinin aktif edileceği belirlenmeli, tek bir rejimin her zaman geçerli olduğu varsayılmamalı.</p>
+
+  <h3><span class="n">B4</span>İddia edilen "edge"ler <span class="tag mixed">değişken güven</span></h3>
+  <ul class="plain">
+    <li><strong>Küçük/illikit hisse primi:</strong> Bazı kaynaklar illikit küçük hisselerin likit olanlardan belirgin daha iyi performans gösterdiğini savunuyor (kurumsal sermayenin erişemediği alan) — çoğunlukla blog kaynaklı, akademik düzeyde değil; BIST mikro-caplerinde test edilecek bir hipotez.</li>
+    <li><strong>Gecelik vs. gün-içi anomali</strong> (en sağlam kanıtlı iddia): ABD'de endeks getirisinin neredeyse tamamı <em>close-to-open</em>'da oluşuyor, gün-içi getiri sıfıra yakın. Ama bu <strong>uygulanabilir bir edge değil</strong> — günlük round-trip, 1bp/işlemde bile ~%5/yıl maliyet yaratıp primi büyük ölçüde yiyor.</li>
+    <li><strong>Kesitsel momentum:</strong> Gelişmiş piyasalarda güçlü, ama gelişen piyasalarda <strong>beklenmedik derecede zayıf</strong> (14 EM piyasasından sadece 2'sinde istatistiksel anlamlı) — ABD-merkezli momentum sonuçlarının BIST'e aktarılacağı varsayılmamalı.</li>
+  </ul>
+
+  <h3><span class="n">B5</span>Modeli güvenmeden önce doğrulama</h3>
+  <ol class="plain">
+    <li>In-sample fit (ilk parametre taraması)</li>
+    <li><strong>Walk-forward + purge gap</strong> — "altın standart": pencereyi zamanda ileri kaydır, yeniden optimize et, görülmemiş veride test et, çoklu pencerede tekrarla</li>
+    <li>Sıkı parametre kilidi altında out-of-sample holdout, sonra paper trading, sonra canlı</li>
+  </ol>
+  <p><strong>Backtest'in canlıda çökmesinin en sık nedenleri</strong> (sıklık sırasıyla): overfitting/curve-fitting → survivorship bias → gerçekçi olmayan fill/maliyet varsayımı (özellikle illikit/EM enstrümanlarda kritik) → rejim değişimi → look-ahead bias.</p>
+
+  <h3><span class="n">B6</span>Dashboard konvansiyonu</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Metrik</th><th>Pratisyen eşiği</th></tr></thead>
+    <tbody>
+      <tr><td>Sharpe oranı</td><td class="num">&gt;1.0 kabul edilebilir · &gt;1.5 iyi · &gt;2.0 canlıda nadir — <strong>şüpheyle yaklaş</strong></td></tr>
+      <tr><td>Maks. drawdown</td><td class="num">&lt;%10 muhafazakâr · %10-20 kabul · &gt;%30 tehlikeli</td></tr>
+      <tr><td>Win rate + profit factor</td><td>Birlikte okunmalı — düşük win rate iyi R:R ile kârlı olabilir</td></tr>
+      <tr><td>Calmar oranı</td><td>Getiri / maks. drawdown — "yol" riskinin özeti</td></tr>
+    </tbody>
+  </table></div>
+  <p>Hiçbir kaynak "tahmin vs. gerçekleşen" kalibrasyon grafiğinden bahsetmedi — topluluk dashboard'larında nadir ama eklenirse <strong>gerçek bir farklılaştırıcı</strong> olur.</p>
+</section>
+
+<!-- SECTION C -->
+<section class="block" id="bist">
+  <div class="sec-head"><span class="sec-num-big">C</span><h2>BIST'e özgü bulgular</h2></div>
+  <p class="sec-sub">Borsa İstanbul'a özel akademik çalışmalar, makro etkileşim ve veri kalitesi riskleri.</p>
+
+  <h3><span class="n">C1</span>Belgelenmiş BIST anomalileri <span class="tag well">kanıtlanmış</span></h3>
+  <ul class="plain">
+    <li><strong>Dönüm-ayı etkisi:</strong> Ayın dönüm günlerinde ortalama günlük getiri ~%0.46 vs. ayın kalanında ~%0.09 (1988–2014, BIST100) — en güçlü belgelenmiş anomalilerden biri, özellikle Ocak/Nisan/Haziran/Aralık'ta belirgin.</li>
+    <li><strong>Gün-içi hafta etkisi:</strong> Pazartesi genelde negatif, Perşembe/Cuma en güçlü — sektöre göre değişiyor.</li>
+    <li><strong>Momentum/tersine dönüş:</strong> 2000–2010 BIST'inde 3/6/9 aylık momentum <em>kârlı değil</em> bulunmuş; düşüş piyasası sonrası yüksek-kalite hisselerde kısa-dönem tersine dönüş daha güvenilir.</li>
+    <li><strong>Kesitsel tahminci:</strong> Book-to-market en güçlü belirleyici (Cakici &amp; Topyan 2013); <strong>büyük-cap hisseler en az tahmin edilebilir alt küme</strong> — inefficiency küçük/orta cap'te yoğunlaşıyor.</li>
+    <li><strong>Likidite:</strong> İlliquidity ölçütleri 1-6 aylık ileri getiriyi pozitif yönde tahmin ediyor, beta/size/B-M/momentum kontrol edilse de geçerli.</li>
+  </ul>
+
+  <h3><span class="n">C2</span>Makro / TL etkileşimi <span class="tag well">güçlü aday</span></h3>
+  <p>2021–2026 enflasyon/döviz ekstremleri (USD/TRY ~49, politika faizi %37, TÜFE ~%31.5 yıllık) göz önüne alınırsa, Türkiye makro-koşullu modelleme için olağandışı güçlü bir vaka. TÜFE sürprizleri BIST getirisini doğrudan hareket ettirdiği gösterilmiş; küresel ekonomik politika belirsizliği hem BIST hem USD/TRY için ortak tahmin gücü taşıyor.</p>
+  <div class="callout well"><b>Aday özellik</b>USD/TRY, TCMB faiz kararı ve TÜİK TÜFE açıklaması — <strong>planlı tarihli</strong> makro olaylar, Türkiye'nin enflasyon/döviz rejiminde idiosyncratic hisse sinyalinden daha baskın olabilir, özellikle banka/holding hisselerinde.</div>
+
+  <h3><span class="n">C3</span>yfinance veri kalitesi riskleri <span class="tag risk">doğrulanmış sorun</span></h3>
+  <div class="callout"><b>GitHub #1788 (açık, yanıtsız)</b>BIST100 endeksi 2020'de redenomine edildi (2 sıfır düştü); yfinance bunu geriye doğru doğru ayarlamıyor — uzun geçmişte görünür bir kırılma var. Aynı issue, <strong>bazı Türk hisselerinde temettü sonrası fiyatın doğru ayarlanmadığını</strong> da bildiriyor.</div>
+  <ul class="plain">
+    <li><strong>Bedelli/bedelsiz sermaye artırımı:</strong> BIST-özel bir bug raporu yok, ama corporate-action ayarlaması Yahoo Finance'in genel bilinen zayıf noktası — <em>doğrulanmamış risk</em>, manuel test gerekli (resmi kaynakla fark alınmalı).</li>
+    <li><strong>Tavan/taban (%10 limit):</strong> yfinance'in bunu yanlış kaydettiğine dair kanıt yok, ama limit günlerinde ince/kuyruklu emir defteri OHLCV-türevi özellikleri (true range, hacim sinyalleri) bozabilir — feature engineering'de açık "limitte" bayrağı kullanılmalı.</li>
+  </ul>
+  <p><strong>Önerilen aksiyon:</strong> Model kurmadan önce birkaç BIST30 hissesinin yfinance geçmişini 2020 redenominasyonu ve bilinen temettü/bedelli tarihleri etrafında bağımsız bir kaynakla (KAP, İş Yatırım) karşılaştır.</p>
+
+  <h3><span class="n">C4</span>Mevcut açık kaynak projeler &amp; araçlar</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Proje</th><th>Yaklaşım</th></tr></thead>
+    <tbody>
+      <tr><td><code>erendl/bist-prediction</code></td><td>XGBoost + Streamlit + yfinance — mimari olarak bu projeye en yakın referans</td></tr>
+      <tr><td><code>themuhammedguler/BIST-Trend-Forecaster</code></td><td>BIST30 + teknik indikatör, makro/FX özellik eklemeyi tartışıyor</td></tr>
+      <tr><td>ADL-financial-forecasting</td><td>Transformer + Monte Carlo Dropout, BIST100+ABD+FRED-MD makro verisi</td></tr>
+      <tr><td><code>saidsurucu/borsapy</code></td><td>Türk piyasalarına özel veri kütüphanesi + backtest motoru — yfinance alternatifi olarak değerlendirilebilir</td></tr>
+    </tbody>
+  </table></div>
+  <p style="color:var(--ink-soft); font-size:14px;">Bu alan dağınık — ABD quant ekosisteminin tersine, üzerine inşa edilen ortak/yıldızlı bir BIST backtest çatısı yok.</p>
+
+  <h3><span class="n">C5</span>Türk perakende topluluğu sezgisi <span class="tag mixed">doğrulanmamış</span></h3>
+  <ul class="plain">
+    <li><strong>Yabancı takas oranı:</strong> MKK/Takasbank'tan haftalık çekilebilen, perakende tarafında aktif takip edilen gerçek bir veri kaynağı — artan yabancı payının kurumsal güven sinyali sayıldığı iddia ediliyor, ama akademik olarak sıkı test edilmiş değil. Ampirik olarak test edilecek, güvenilecek değil.</li>
+    <li><strong>Tavan/taban kırma davranışı:</strong> Düşük float hisselerde organize "tavan serisi" sonrası zayıf elleri silkeleme paterni — anekdot değil, yarı-belgelenmiş bir mikroyapı fenomeni, ama BIST30 blue-chip'lerden çok küçük/orta cap'e özgü.</li>
+  </ul>
+</section>
+
+<!-- SECTION D -->
+<section class="block" id="aksiyon">
+  <div class="sec-head"><span class="sec-num-big">D</span><h2>Projeye çevirisi</h2></div>
+  <p class="sec-sub">Üç taramanın kesiştiği, somut inşa kararları.</p>
+
+  <h3><span class="n">D1</span>Model &amp; özellik seçimi</h3>
+  <ul class="plain">
+    <li>Birincil model: <strong>LightGBM/XGBoost</strong>, LSTM/Transformer değil — küçük BIST30 veri setinde daha az overfit riski.</li>
+    <li>Çekirdek özellikler: çoklu-ufuk gecikmeli getiri (1g/5g/1ay), hacim z-skoru, realized volatilite/ATR, sektöre-relatif güç, gün-içi hafta + dönüm-ayı dummy'leri.</li>
+    <li>GARCH / ATR → yön değil, <strong>volatilite tahmini ve pozisyon boyutlandırma</strong> girdisi.</li>
+    <li>Makro katman: USD/TRY değişimi, TCMB faiz kararı tarihi, TÜİK TÜFE sürprizi — planlı olay bayrağı olarak ekle.</li>
+    <li>"Tavan/taban'da" ve "sıfır hacim" bayrakları — bu barları normal gibi işleme, modelden önce filtrele veya ayrı kategori yap (19 Mart 2025 benzeri piyasa-geneli şok günleri gibi).</li>
+  </ul>
+
+  <h3><span class="n">D2</span>Doğrulama protokolü</h3>
+  <ol class="plain">
+    <li>Veri doğrulama: yfinance'i 2020 redenominasyonu + bilinen temettü/bedelli olayları etrafında bağımsız kaynakla karşılaştır.</li>
+    <li>Point-in-time evren: hayatta kalma yanlılığını önlemek için listeden çıkanları dahil et/işaretle.</li>
+    <li>Walk-forward + purge gap ile eğitim/test, tek bir backtest dönemine güvenme.</li>
+    <li>Gerçekçi maliyet modeli: mid-price fill değil, spread+komisyon+slippage, BIST'in göreli illikiditesine göre kalibre edilmiş.</li>
+    <li>Deflated Sharpe / çoklu-deneme düzeltmesi — çok sayıda özellik/parametre denendiyse ham Sharpe'a güvenme.</li>
+  </ol>
+
+  <h3><span class="n">D3</span>Dashboard'a eklenecekler</h3>
+  <p>Standart set (equity curve, Sharpe/Sortino, maks. drawdown, Calmar, hit-rate/profit-factor) + topluluk dashboard'larında nadir görülen ama değerli bir ekleme: <strong>tahmin vs. gerçekleşen getiri kalibrasyon grafiği</strong> — modelin ne zaman aşırı/az güvenli olduğunu gösterir.</p>
+
+  <div class="callout"><b>En yüksek kaldıraçlı tek adım</b>Model karmaşıklığından önce: (1) veri kalitesini doğrula, (2) gerçekçi maliyet modeli kur. Pratisyen ve akademik kaynaklar bağımsız olarak aynı sonuca varıyor — amatör ve hatta yayınlanmış backtest'lerin çoğu burada çöküyor, model sofistikasyonunda değil.</div>
+</section>
+
+<footer>
+  BIST Sinyal Taraması — akademik, pratisyen ve BIST-özel üç paralel araştırmanın sentezi · BIST30 / yfinance backtest projesi için hazırlandı
+</footer>
+
+</div>
