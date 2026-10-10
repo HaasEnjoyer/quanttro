@@ -6,9 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "quanttro"
 version = "0.1.0"
 description = "Python toolkit for backtest robustness, risk/portfolio research, and prop-firm challenge simulation (with built-in BIST market support)"
+readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "quanttro" }]
+urls = { Homepage = "https://github.com/HaasEnjoyer/quanttro", Repository = "https://github.com/HaasEnjoyer/quanttro" }
 dependencies = [
     "pandas>=2.0",
     "numpy>=1.24",
