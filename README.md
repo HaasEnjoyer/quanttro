@@ -119,6 +119,13 @@ PBO (≈0.65 in our own test); run it on a batch where one strategy has a
 genuine, consistent edge and PBO drops sharply (≈0.12). See
 [`docs/robustness.md`](docs/robustness.md) for the full walkthrough.
 
+**Worked example on a real, popular strategy:**
+[Is the "Golden Cross" overfit?](docs/case_study_golden_cross_overfitting.md)
+— 16 moving-average-pair variants tested on 33 years of real SPY data.
+PBO ≈ 0.58 (close to a coin flip on which pair was genuinely best vs. lucky
+in-sample), and the "winning" pair changes depending on which decade you
+calibrate on. Every number is reproducible with `pip install quanttro`.
+
 ## Repository layout
 
 ```
